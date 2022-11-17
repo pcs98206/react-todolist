@@ -40,6 +40,7 @@ interface IFormData {
   toDO3: string;
   toDO4: string;
   toDO5: string;
+  extraError?: string;
 }
 
 const ToDoList = () => {
@@ -48,13 +49,21 @@ const ToDoList = () => {
     watch,
     handleSubmit,
     formState: { errors },
+    setError,
   } = useForm<IFormData>({
     defaultValues: {
       email: "naver.com",
     },
   });
-  const onValid = (data: any) => {
-    console.log(data);
+  const onValid = (data: IFormData) => {
+    if (data.toDO2 !== data.toDO3) {
+      setError(
+        "toDO2",
+        { message: "ToDo2 is not the same" },
+        { shouldFocus: true }
+      );
+    }
+    // setError("extraError", { message: "Server offline" });
   };
   console.log(errors);
   return (
@@ -81,7 +90,9 @@ const ToDoList = () => {
         />
         <span>{errors?.email?.message}</span>
         <input
-          {...register("toDO2", { required: "write here" })}
+          {...register("toDO2", {
+            required: "write here",
+          })}
           type="text"
           placeholder="Write a to do"
         />
@@ -93,7 +104,14 @@ const ToDoList = () => {
         />
         <span>{errors?.toDO3?.message}</span>
         <input
-          {...register("toDO4", { required: "write here" })}
+          {...register("toDO4", {
+            required: "write here",
+            validate: {
+              noNico: (value) =>
+                value.includes("nico") ? "no nicos allowed" : true,
+              noSk: (value) => (value.includes("sk") ? "no sks allowed" : true),
+            },
+          })}
           type="text"
           placeholder="Write a to do"
         />
@@ -105,6 +123,7 @@ const ToDoList = () => {
         />
         <span>{errors?.toDO5?.message}</span>
         <button>Add</button>
+        <span>{errors?.extraError?.message}</span>
       </form>
     </div>
   );
